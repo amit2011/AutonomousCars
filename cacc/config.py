@@ -48,9 +48,18 @@ class SimulatorConfig:
             raise RuntimeError("Missing velocity config for %s", car_name)
         if 'acceleration' not in car_conf:
             raise RuntimeError("Missing acceleration config for %s", car_name)
+        if 'guide_strat' not in car_conf:
+            raise RuntimeError("Missing guide_strat config for %s", car_name)
+        if 'comm_strat' not in car_conf:
+            raise RuntimeError("Missing comm_strat config for %s", car_name)
+        if 'sensor' not in car_conf:
+            raise RuntimeError("Missing sensor config for %s", car_name)
         return {
             'name': car_name,
             'pos': float(car_conf.get('position')),
             'vel': float(car_conf.get('velocity')),
-            'accel': float(car_conf.get('acceleration'))
+            'accel': float(car_conf.get('acceleration')),
+            'guide_strat': car_conf.get('guide_strat'),
+            'comm_strat': car_conf.get('comm_strat'),
+            'sensor': car_conf.get('sensor')
         }

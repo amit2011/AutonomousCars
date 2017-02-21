@@ -34,3 +34,5 @@
 
 cacc-env/
 __pycache__/
+*.pyc
+.idea/

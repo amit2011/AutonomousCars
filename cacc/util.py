@@ -1,4 +1,5 @@
 from .errors import *
+import importlib
 
 def compute_accel(leader, follower, safeTime):
     gap = compute_gap(leader, follower)
@@ -41,3 +42,9 @@ def compute_safegap(leader, follower):
         0.1 * follower.vel + follower.vel ** 2 / (2.0 * follower.max_deccel) \
         - leader.vel ** 2 / (2 * leader.max_deccel) + 1.0
     )
+
+def cls_from_str(clsname):
+    module_name, class_name = clsname.rsplit(".", 1)
+    module = importlib.import_module(module_name, package='cacc')
+    cls = getattr(module, class_name)
+    return cls
