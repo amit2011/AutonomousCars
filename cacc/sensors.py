@@ -21,9 +21,9 @@ class OneAheadSensor:
                 leader = c
 
 
-    def sense(self):
+    def sense(self, i):
         if self.leader is not None:
-            return self.leader.pos, self.leader.vel
+            return self.leader.get_pos(i-1), self.leader.get_vel(i-1)
         else:
             return None, None
 

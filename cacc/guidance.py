@@ -11,7 +11,7 @@ class LeaderGuidanceStrategy:
     def orient(self, car):
         pass
 
-    def compute_guidance(self, car):
+    def compute_guidance(self, car, i):
         """
         Computes new acceleration for car.
         :param car:
@@ -38,14 +38,14 @@ class FollowerGuidanceStrategy:
             else:
                 leader = c
 
-    def observe(self, sensor):
-        return sensor.sense()
+    def observe(self, sensor, i):
+        return sensor.sense(i)
 
     def listen(self):
         return self.world.recv_msg(self.leader.name)
 
-    def compute_guidance(self, car):
-        lead_pos, lead_vel = self.observe(car.sensor)
+    def compute_guidance(self, car, i):
+        lead_pos, lead_vel = self.observe(car.sensor, i)
         if lead_pos is None or lead_vel is None:
             raise RuntimeError("OneAheadSensor observed None: This shouldn't happen")
         lead_accel = self.listen()

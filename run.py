@@ -19,7 +19,7 @@ def main():
     print(config)
     sim = Simulator(config)
     sim.run()
-
+    sim.output()
 
 if __name__ == "__main__":
     main()
