@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 from cacc.simulator import Simulator
-from cacc.config import SimulatorConfig
+from cacc.errors import CollisionException, NegativeSafegapException, CollisionAvoidanceException
+import json
 import argparse
+import pprint
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -15,10 +18,14 @@ def main():
         help='A config file containing run information'
     )
     results = parser.parse_args()
-    config = SimulatorConfig.from_file(results.config)
-    print(config)
-    sim = Simulator(config)
-    sim.run()
+    conf = json.load(results.config)
+    pprint.pprint(conf)
+    sim = Simulator(conf)
+    try:
+        sim.run()
+    except (CollisionException, NegativeSafegapException, CollisionAvoidanceException) as e:
+        print(e)
+        exit(1)
     sim.output()
 
 if __name__ == "__main__":

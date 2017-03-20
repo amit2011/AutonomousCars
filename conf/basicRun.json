@@ -1,0 +1,42 @@
+{
+  "simulation": {
+    "safe_time_gap": 0.55,
+    "car_length": 5,
+    "max_deccel": 5,
+    "max_vel": 20,
+    "time_unit": 0.01,
+    "trajectory_points": 100
+  },
+  "cars": [
+    {
+      "name": "CarA",
+      "position": 20,
+      "velocity": 1,
+      "acceleration": 0,
+      "guide_strat": {
+        "class": ".guidance.LeaderGuidanceStrategy"
+      },
+      "comm_strat": {
+        "class": ".communication.BasicCommStrategy"
+      },
+      "sensor": {
+        "class": ".sensors.OneAheadSensor"
+      }
+    },
+    {
+      "name": "CarB",
+      "position": 10,
+      "velocity": 1,
+      "acceleration": 1,
+      "guide_strat": {
+        "class": ".guidance.FollowerGuidanceStrategy"
+      },
+      "comm_strat": {
+        "class": ".communication.BasicCommStrategy"
+      },
+      "sensor": {
+        "class": ".sensors.OneAheadSensor"
+      }
+    }
+  ]
+}

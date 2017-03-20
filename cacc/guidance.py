@@ -5,7 +5,7 @@ from cacc.errors import *
 
 class LeaderGuidanceStrategy:
 
-    def __init__(self, world):
+    def __init__(self, world, **kwargs):
         pass
 
     def orient(self, car):
@@ -24,9 +24,10 @@ class LeaderGuidanceStrategy:
         return "LEADER"
 
 class FollowerGuidanceStrategy:
-    def __init__(self, world):
+    def __init__(self, world, **kwargs):
         self.world = world
         self.leader = None
+        self.leader_accel = 0.0
 
     def orient(self, car):
         leader = None
@@ -42,7 +43,10 @@ class FollowerGuidanceStrategy:
         return sensor.sense(i)
 
     def listen(self):
-        return self.world.recv_msg(self.leader.name)
+        lead_accel = self.world.recv_msg(self.leader.name)
+        if lead_accel is not None:
+            self.leader_accel = lead_accel
+        return self.leader_accel
 
     def compute_guidance(self, car, i):
         lead_pos, lead_vel = self.observe(car.sensor, i)
@@ -63,7 +67,6 @@ class FollowerGuidanceStrategy:
             # mode = ControlMode.CACC_CA
             # accel = -car.max_deccel
             raise CollisionAvoidanceException(self.leader, car, gap, safe_gap)
-
         desired_accel = 0.66 * lead_accel \
                         + 0.99 * (lead_vel - car.vel) \
                         + 4.08 * (gap - car.vel * self.world.safe_time_gap - 2.0)

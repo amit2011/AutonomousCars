@@ -1,7 +1,7 @@
 
 class OneAheadSensor:
 
-    def __init__(self, world):
+    def __init__(self, world, **kwargs):
         self.world = world
         self.leader = None
 

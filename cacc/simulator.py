@@ -3,6 +3,7 @@ from enum import Enum
 
 from cacc import util
 from .util import *
+import os
 
 class ControlMode(Enum):
     CACC_CA = 1
@@ -12,15 +13,27 @@ class ControlMode(Enum):
 
 class Car:
 
-    def __init__(self, name, init_pos, init_vel, init_accel, max_vel, max_deccel, length, guide_strat, comm_strat, sensor):
-        self.name = name
-        self.points = [(0.00, init_pos, init_vel, init_accel, ControlMode.CACC_GC)]
-        self.max_vel = max_vel
-        self.max_deccel = max_deccel
-        self.length = length
-        self.guide_strat = guide_strat
-        self.comm_strat = comm_strat
-        self.sensor = sensor
+    def __init__(self, world, global_conf, car_conf):
+        self.name = car_conf['name']
+        self.points = [(
+            0.00,
+            car_conf['position'],
+            car_conf['velocity'],
+            car_conf['acceleration'],
+            ControlMode.CACC_GC
+        )]
+
+        self.max_vel = global_conf['max_vel']
+        self.max_deccel = global_conf['max_deccel']
+        self.length = global_conf['car_length']
+
+        guide_strat = car_conf['guide_strat']
+        comm_strat = car_conf['comm_strat']
+        sensor = car_conf['sensor']
+
+        self.guide_strat = cls_from_str(guide_strat['class'])(world, **guide_strat)
+        self.comm_strat = cls_from_str(comm_strat['class'])(world, **comm_strat)
+        self.sensor = cls_from_str(sensor['class'])(world, **sensor)
 
     def __str__(self):
         time, pos, vel, acc, mode = self.points[-1]
@@ -74,13 +87,15 @@ class Car:
 
 class World:
 
-    def __init__(self, safe_time_gap, dt):
-        self.cars = []
-        self.time = 0.0
-        self.safe_time_gap = safe_time_gap
-        self.dt = dt
+    def __init__(self, config):
+        self.safe_time_gap = config['simulation']['safe_time_gap']
+        self.dt = config['simulation']['time_unit']
+        self.cars = [Car(self, config['simulation'], car_conf)
+            for car_conf in config['cars']]
         self.messages = dict()
         self.i = 0
+        self.time = 0.0
+
 
     def update(self):
         self.time += self.dt
@@ -111,9 +126,6 @@ class World:
     def recv_msg(self, src):
         return self.messages.get(src, None)
 
-    def add_car(self, car):
-        self.cars.append(car)
-
     def __str__(self):
         string = ""
         for car in self.cars:
@@ -123,36 +135,18 @@ class World:
 
 class Simulator:
 
-    def __init__(self, conf):
-        self.config = conf
-        self.world = World(self.config.sim_conf['safe_time_gap'],
-                           self.config.sim_conf['time_unit'])
-        for car in conf.cars:
-            self.world.add_car(
-                Car(car['name'],
-                    car['pos'],
-                    car['vel'],
-                    car['accel'],
-                    conf.sim_conf['max_vel'],
-                    conf.sim_conf['max_deccel'],
-                    conf.sim_conf['car_length'],
-                    util.cls_from_str(car['guide_strat'])(self.world),
-                    util.cls_from_str(car['comm_strat'])(self.world),
-                    util.cls_from_str(car['sensor'])(self.world)
-                ))
+    def __init__(self, config):
+        self.config = config
+        self.world = World(config)
 
     def run(self):
-        point_count = self.config.sim_conf['trajectory_points']
-        try:
+        point_count = self.config['simulation']['trajectory_points']
+        print(self.world)
+        self.world.prepare()
+        for _ in range(point_count-1):
             print(self.world)
-            self.world.prepare()
-            for _ in range(point_count-1):
-                print(self.world)
-                self.world.update()
-            print(self.world)
-        except (CollisionException, NegativeSafegapException, CollisionAvoidanceException) as e:
-            print(e)
-            exit(1)
+            self.world.update()
+        print(self.world)
 
     def output(self):
         for car in self.world.cars:
@@ -169,5 +163,6 @@ class Simulator:
         for p in car.points:
             output += "%4.2f " % p[1]
         output += '"\n'
-        with open(car.name, 'w') as f:
+        os.makedirs("output", exist_ok=True)
+        with open(os.path.join("output", car.name), 'w') as f:
             f.write(output)
