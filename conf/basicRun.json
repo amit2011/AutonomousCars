@@ -5,7 +5,7 @@
     "max_deccel": 5,
     "max_vel": 20,
     "time_unit": 0.01,
-    "trajectory_points": 100
+    "trajectory_points": 1000
   },
   "cars": [
     {
@@ -17,7 +17,7 @@
         "class": ".guidance.LeaderGuidanceStrategy"
       },
       "comm_strat": {
-        "class": ".communication.BasicCommStrategy"
+        "class": ".communication.ConfigurableCommStrat"
       },
       "sensor": {
         "class": ".sensors.OneAheadSensor"
@@ -32,7 +32,7 @@
         "class": ".guidance.FollowerGuidanceStrategy"
       },
       "comm_strat": {
-        "class": ".communication.BasicCommStrategy"
+        "class": ".communication.ConfigurableCommStrat"
       },
       "sensor": {
         "class": ".sensors.OneAheadSensor"

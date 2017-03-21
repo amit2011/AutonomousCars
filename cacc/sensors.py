@@ -29,6 +29,6 @@ class OneAheadSensor:
 
     def __str__(self):
         if self.leader is not None:
-            return "ONE_AHEAD(%s.pos, %s.vel)" % (self.leader.name, self.leader.name)
+            return "ONE_AHEAD(%s)" % (self.leader.name)
         else:
             return "NONE_AHEAD"

@@ -17,7 +17,7 @@
         "class": ".guidance.LeaderGuidanceStrategy"
       },
       "comm_strat": {
-        "class": ".communication.BasicCommStrategy"
+        "class": ".communication.ConfigurableCommStrat"
       },
       "sensor": {
         "class": ".sensors.OneAheadSensor"
@@ -32,9 +32,8 @@
         "class": ".guidance.FollowerGuidanceStrategy"
       },
       "comm_strat": {
-        "class": ".communication.LiarCommStrat",
-        "lie_rate": 1,
-        "lie_value": 1000000
+        "class": ".communication.ConfigurableCommStrat",
+        "mutate_func": "1000000 if random.random() < .5 else car.accel"
       },
       "sensor": {
         "class": ".sensors.OneAheadSensor"
@@ -49,7 +48,7 @@
         "class": ".guidance.FollowerGuidanceStrategy"
       },
       "comm_strat": {
-        "class": ".communication.BasicCommStrategy"
+        "class": ".communication.ConfigurableCommStrat"
       },
       "sensor": {
         "class": ".sensors.OneAheadSensor"

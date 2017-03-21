@@ -1,58 +1,39 @@
 import random
 
-
-class  BasicCommStrategy:
+class ConfigurableCommStrat:
     """
-    This is the communication strategy that a good actor would use.
-    Basically, it communicates the correct information.
-    """
+    This is a configurable communication stategy which can be configured
+    to drop and mutate packets from config.
 
-    def __init__(self, world, **kwargs):
-        self.world = world
-
-    def communicate(self, car):
-        self.world.send_msg(car.name, car.accel)
-
-    def __str__(self):
-        return "BASIC_COMM"
-
-
-class RandomDropCommStrat:
-    """
-    This is a malicious strategy where communcation packets will randomly
-    be dropped, so data will be out of date at the other cars in the platoon
+    Expectations:
+    - 'drop_func': An boolean expression that is True if the packet should be
+        dropped. (Default: False)
+    - 'mutate_func': An expression which returns a float representing the value
+        which should be sent as the acceleration of the car. (Default: car.accel)
     """
 
     def __init__(self, world, **kwargs):
+        """
+        :param world: The world object
+        :param **kwargs: A dictionary containing the arguments for the strat.
+        """
         self.world = world
-        self.drop_rate = kwargs.get('drop_rate')
+        self.drop_func = eval("lambda car: " + kwargs['drop_func']) \
+            if 'drop_func' in kwargs \
+            else lambda car: False
+        self.mutate_func = eval("lambda car: " + kwargs['mutate_func']) \
+            if 'mutate_func' in kwargs \
+            else lambda car: car.accel
 
     def communicate(self, car):
-        if random.random() > self.drop_rate:
-            self.world.send_msg(car.name, car.accel)
+        """
+        :param car: The car to base the communication on.
+        """
+        if not self.drop_func(car):
+            val = self.mutate_func(car)
+            self.world.send_msg(car.name, val)
         else:
-            print("%s dropping packet" % (car.name))
+            print("%s is dropping a packet" % (car.name))
 
     def __str__(self):
-        return "DROP_COMM(%.2f)" % self.drop_rate
-
-class LiarCommStrat:
-    """
-    This is a malicious strategy where a certain percentage of packets
-    will randomly lie.
-    """
-
-    def __init__(self, world, **kwargs):
-        self.world = world
-        self.lie_rate = kwargs.get('lie_rate')
-        self.lie_value = kwargs.get('lie_value')
-
-    def communicate(self, car):
-        if random.random() > self.lie_rate:
-            self.world.send_msg(car.name, car.accel)
-        else:
-            print("%s is lying about it's accel" % (car.name))
-            self.world.send_msg(car.name, self.lie_value)
-
-    def __str__(self):
-        return "LIAR_COMM(%.2f, %.4f)" % (self.lie_rate, self.lie_value)
+        return "CONFIG_COMM"

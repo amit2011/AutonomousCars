@@ -71,6 +71,8 @@ class FollowerGuidanceStrategy:
                         + 0.99 * (lead_vel - car.vel) \
                         + 4.08 * (gap - car.vel * self.world.safe_time_gap - 2.0)
         accel_control = (desired_accel - car.accel) / 0.4 * 0.1 + car.accel
+
+        print("%s accel message: %f" % (self.leader.name, lead_accel))
         return max(min(accel_control, 3), -3), ControlMode.CACC_GC
 
     def __str__(self):

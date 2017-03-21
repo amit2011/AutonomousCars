@@ -33,7 +33,7 @@
       },
       "comm_strat": {
         "class": ".communication.ConfigurableCommStrat",
-        "drop_func": "random.random() < 0.5"
+        "mutate_func": "-car.accel"
       },
       "sensor": {
         "class": ".sensors.OneAheadSensor"
