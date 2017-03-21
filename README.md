@@ -1,18 +1,18 @@
 # AutonomousCars
 Research work on autonomous vehicle security
 
-# How to run:
+## Setup:
+python -m venv cacc-env
+source cacc-env/bin/activate
+pip install -r requirements.txt
+
+## How to run:
 ```bash
 ./run.py conf/<config_file>
 ```
 
-## Dependencies:
-- Python 3.4+
-- numpy
-- matplotlib
-
-# New Run Configurations:
+## New Run Configurations:
 You can create new simulation configurations with any
-number of cars.  For imformation on which args you need,
-I recommend that you read the source and see examples
-included already.
+number of cars. For imformation on which args you need,
+read the source and see examples in `conf/`. 
+
