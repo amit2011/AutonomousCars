@@ -5,6 +5,9 @@ from cacc import util
 from .util import *
 import os
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 class ControlMode(Enum):
     CACC_CA = 1
     CACC_GC = 2
@@ -166,3 +169,32 @@ class Simulator:
         os.makedirs("output", exist_ok=True)
         with open(os.path.join("output", car.name), 'w') as f:
             f.write(output)
+
+    def plot_data(self):
+        point_count = len(self.world.cars[0].points)
+        dt = self.config['simulation']['time_unit']
+        x = np.arange(0, point_count * dt, dt)
+        plt.figure(figsize=(9,9))
+        plt.subplot(221)
+        plt.grid(True)
+        plt.title("Position over time")
+        for car in self.world.cars:
+            positions = [point[1] for point in car.points]
+            line, = plt.plot(x, positions, label=car.name)
+        plt.legend()
+        plt.subplot(222)
+        plt.grid(True)
+        plt.title("Velocity over time")
+        for car in self.world.cars:
+            positions = [point[2] for point in car.points]
+            line, = plt.plot(x, positions, label=car.name)
+        plt.legend()
+        plt.subplot(223)
+        plt.grid(True)
+        plt.title("Acceleration over time")
+        for car in self.world.cars:
+            positions = [point[3] for point in car.points]
+            line, = plt.plot(x, positions, label=car.name)
+        plt.legend()
+        os.makedirs("output", exist_ok=True)
+        plt.savefig(os.path.join("output", "plot.png"))

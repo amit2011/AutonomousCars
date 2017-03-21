@@ -25,7 +25,10 @@ def main():
         sim.run()
     except (CollisionException, NegativeSafegapException, CollisionAvoidanceException) as e:
         print(e)
+        sim.plot_data()
         exit(1)
+
+    sim.plot_data()
     sim.output()
 
 if __name__ == "__main__":

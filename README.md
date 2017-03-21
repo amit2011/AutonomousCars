@@ -2,15 +2,14 @@
 Research work on autonomous vehicle security
 
 # How to run:
-Project has been tested on Python 3.6 but should
-work on anything 3.4 and up.
-
-Run using:
 ```bash
-./run.py conf/basicRun.json
+./run.py conf/<config_file>
 ```
 
-Additional simulation configs can be defined as needed.
+## Dependencies:
+- Python 3.4+
+- numpy
+- matplotlib
 
 # New Run Configurations:
 You can create new simulation configurations with any
