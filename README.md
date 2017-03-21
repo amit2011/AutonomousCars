@@ -2,9 +2,11 @@
 Research work on autonomous vehicle security
 
 ## Setup:
+```bash
 python -m venv cacc-env
 source cacc-env/bin/activate
 pip install -r requirements.txt
+```
 
 ## How to run:
 ```bash
