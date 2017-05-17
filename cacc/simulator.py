@@ -1,12 +1,13 @@
-
 from enum import Enum
-
-from cacc import util
-from .util import *
 import os
+import json
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+from cacc import errors
+from cacc.util import *
+
 
 class ControlMode(Enum):
     CACC_CA = 1
@@ -15,7 +16,6 @@ class ControlMode(Enum):
 
 
 class Car:
-
     def __init__(self, world, global_conf, car_conf):
         self.name = car_conf['name']
         self.points = [(
@@ -113,6 +113,14 @@ class World:
         for car in self.cars:
             car.update_guidance(self.i)
 
+    def check_contraints(self):
+        for i in range(len(self.cars)-1):
+            leader = self.cars[i]
+            follower = self.cars[i+1]
+            gap = leader.pos - leader.length - follower.pos
+            if gap <= 0:
+                raise errors.CollisionException(leader=leader, follower=follower, gap=gap)
+
     def prepare(self):
         for car in self.cars:
             car.prepare()
@@ -122,6 +130,8 @@ class World:
 
         for car in self.cars:
             car.update_guidance(0)
+
+        self.cars = sorted(self.cars, key=lambda car: -car.pos)
 
     def send_msg(self, src, data):
         self.messages[src] = data
@@ -144,18 +154,22 @@ class Simulator:
 
     def run(self):
         point_count = self.config['simulation']['trajectory_points']
-        print(self.world)
+        #print(self.world)
         self.world.prepare()
         for _ in range(point_count-1):
-            print(self.world)
+            #print(self.world)
             self.world.update()
-        print(self.world)
+            self.world.check_contraints()
+        #print(self.world)
 
-    def output(self):
+    def output(self, directory):
         for car in self.world.cars:
-            self.car_to_file(car)
+            self.car_to_file(car, directory)
+        self.plot_data(directory)
+        with open(directory + "config.json", 'w') as fp:
+            json.dump(self.config, fp, indent=4)
 
-    def car_to_file(self, car):
+    def car_to_file(self, car, directory):
         output = '"time":"'
         for p in car.points:
             output += "%3.2f " % p[0]
@@ -166,35 +180,45 @@ class Simulator:
         for p in car.points:
             output += "%4.2f " % p[1]
         output += '"\n'
-        os.makedirs("output", exist_ok=True)
-        with open(os.path.join("output", car.name), 'w') as f:
+        os.makedirs(directory, exist_ok=True)
+        with open(os.path.join(directory, car.name), 'w') as f:
             f.write(output)
 
-    def plot_data(self):
+    def plot_data(self, directory):
+        os.makedirs(directory, exist_ok=True)
         point_count = len(self.world.cars[0].points)
         dt = self.config['simulation']['time_unit']
         x = np.arange(0, point_count * dt, dt)
-        plt.figure(figsize=(9,9))
-        plt.subplot(221)
+
+        plt.figure(dpi=400)
         plt.grid(True)
-        plt.title("Position over time")
+        plt.title("Position")
+        plt.xlabel("secs")
+        plt.ylabel("meters")
         for car in self.world.cars:
             positions = [point[1] for point in car.points]
             line, = plt.plot(x, positions, label=car.name)
         plt.legend()
-        plt.subplot(222)
+        plt.savefig(os.path.join(directory, "pos.png"))
+
+        plt.figure(dpi=400)
         plt.grid(True)
-        plt.title("Velocity over time")
+        plt.title("Velocity")
+        plt.xlabel("secs")
+        plt.ylabel("m/s")
         for car in self.world.cars:
             positions = [point[2] for point in car.points]
             line, = plt.plot(x, positions, label=car.name)
         plt.legend()
-        plt.subplot(223)
+        plt.savefig(os.path.join(directory, "vel.png"))
+
+        plt.figure(dpi=400)
         plt.grid(True)
-        plt.title("Acceleration over time")
+        plt.title("Acceleration")
+        plt.xlabel("secs")
+        plt.ylabel("$m/s^2$")
         for car in self.world.cars:
             positions = [point[3] for point in car.points]
             line, = plt.plot(x, positions, label=car.name)
         plt.legend()
-        os.makedirs("output", exist_ok=True)
-        plt.savefig(os.path.join("output", "plot.png"))
+        plt.savefig(os.path.join(directory, "accel.png"))

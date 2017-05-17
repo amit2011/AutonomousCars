@@ -20,7 +20,7 @@
         "class": ".communication.ConfigurableCommStrat"
       },
       "sensor": {
-        "class": ".sensors.OneAheadSensor",
+        "class": ".sensors.OneAheadSensor"
       }
     },
     {
@@ -52,6 +52,10 @@
       },
       "sensor": {
         "class": ".sensors.OneAheadSensor",
+        "pos_bias": "0",
+        "pos_std": "0",
+        "vel_bias": "0",
+        "vel_std": "10"
       }
     }
   ]
